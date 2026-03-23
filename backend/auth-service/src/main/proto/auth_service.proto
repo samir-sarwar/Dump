@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+package dump.auth;
+
+option java_package = "com.dump.authservice.grpc";
+option java_multiple_files = true;
+
+// ── Enums ──
+
+enum AuthProvider {
+  LOCAL = 0;
+  GOOGLE = 1;
+  APPLE = 2;
+}
+
+// ── Messages ──
+
+message RegisterRequest {
+  string name = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message SocialLoginRequest {
+  AuthProvider provider = 1;
+  string id_token = 2;
+}
+
+message AuthResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  UserProfile user = 3;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  bool valid = 1;
+  string user_id = 2;
+  string username = 3;
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserByUsernameRequest {
+  string username = 1;
+}
+
+message GetBatchUsersRequest {
+  repeated string user_ids = 1;
+}
+
+message SearchUsersRequest {
+  string query = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message CheckFollowRequest {
+  string follower_id = 1;
+  string followee_id = 2;
+}
+
+message CheckFollowResponse {
+  bool following = 1;
+}
+
+message UpdateProfileRequest {
+  string user_id = 1;
+  string name = 2;
+  string bio = 3;
+  string avatar_url = 4;
+  string cover_url = 5;
+}
+
+message UserProfile {
+  string id = 1;
+  string name = 2;
+  string username = 3;
+  string email = 4;
+  string bio = 5;
+  string avatar_url = 6;
+  string cover_url = 7;
+  UserStats stats = 8;
+  string created_at = 9;
+}
+
+message UserStats {
+  int32 clippings = 1;
+  int32 followers = 2;
+}
+
+message FollowRequest {
+  string follower_id = 1;
+  string followee_id = 2;
+}
+
+message FollowResponse {
+  bool success = 1;
+}
+
+message GetFollowersRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message GetFollowingRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message UserListResponse {
+  repeated UserProfile users = 1;
+  int32 total = 2;
+}
+
+message GetFriendsRequest {
+  string user_id = 1;
+}
+
+message FriendListResponse {
+  repeated UserProfile friends = 1;
+}
+
+// ── Service ──
+
+service AuthService {
+  rpc Register(RegisterRequest) returns (AuthResponse);
+  rpc Login(LoginRequest) returns (AuthResponse);
+  rpc SocialLogin(SocialLoginRequest) returns (AuthResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (AuthResponse);
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc GetUser(GetUserRequest) returns (UserProfile);
+  rpc GetUserByUsername(GetUserByUsernameRequest) returns (UserProfile);
+  rpc GetBatchUsers(GetBatchUsersRequest) returns (UserListResponse);
+  rpc UpdateProfile(UpdateProfileRequest) returns (UserProfile);
+  rpc Follow(FollowRequest) returns (FollowResponse);
+  rpc Unfollow(FollowRequest) returns (FollowResponse);
+  rpc GetFollowers(GetFollowersRequest) returns (UserListResponse);
+  rpc GetFollowing(GetFollowingRequest) returns (UserListResponse);
+  rpc GetFriends(GetFriendsRequest) returns (FriendListResponse);
+  rpc SearchUsers(SearchUsersRequest) returns (UserListResponse);
+  rpc CheckFollow(CheckFollowRequest) returns (CheckFollowResponse);
+}
