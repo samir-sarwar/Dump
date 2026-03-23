@@ -1,0 +1,105 @@
+services:
+
+  postgres-auth:
+    image: postgres:16-alpine
+    container_name: dump-postgres-auth
+    environment:
+      POSTGRES_DB: dump_auth
+      POSTGRES_USER: dump
+      POSTGRES_PASSWORD: dump
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-auth-data:/var/lib/postgresql/data
+    networks:
+      - dump-network
+
+  postgres-event:
+    image: postgres:16-alpine
+    container_name: dump-postgres-event
+    environment:
+      POSTGRES_DB: dump_event
+      POSTGRES_USER: dump
+      POSTGRES_PASSWORD: dump
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-event-data:/var/lib/postgresql/data
+    networks:
+      - dump-network
+
+  postgres-media:
+    image: postgres:16-alpine
+    container_name: dump-postgres-media
+    environment:
+      POSTGRES_DB: dump_media
+      POSTGRES_USER: dump
+      POSTGRES_PASSWORD: dump
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-media-data:/var/lib/postgresql/data
+    networks:
+      - dump-network
+
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: dump-kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    ports:
+      - "9092:9092"
+    networks:
+      - dump-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: dump-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - dump-network
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: dump-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 3;
+      mc alias set local http://minio:9000 minioadmin minioadmin;
+      mc mb local/dump-media --ignore-existing;
+      mc anonymous set download local/dump-media;
+      exit 0;
+      "
+    networks:
+      - dump-network
+
+volumes:
+  postgres-auth-data:
+  postgres-event-data:
+  postgres-media-data:
+  minio-data:
+
+networks:
+  dump-network:
+    driver: bridge
