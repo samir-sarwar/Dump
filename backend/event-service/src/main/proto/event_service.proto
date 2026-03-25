@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+package dump.event;
+
+option java_package = "com.dump.eventservice.grpc";
+option java_multiple_files = true;
+
+// ── Messages ──
+
+message CreateEventRequest {
+  string title = 1;
+  string date = 2;
+  string location = 3;
+  string image_url = 4;
+  string creator_id = 5;
+}
+
+message UpdateEventRequest {
+  string event_id = 1;
+  string title = 2;
+  string date = 3;
+  string location = 4;
+  string image_url = 5;
+}
+
+message GetEventRequest {
+  string event_id = 1;
+}
+
+message DeleteEventRequest {
+  string event_id = 1;
+  string user_id = 2;
+}
+
+message DeleteEventResponse {
+  bool success = 1;
+}
+
+message ListUserEventsRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message GetUpcomingEventsRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message JoinEventRequest {
+  string event_id = 1;
+  string user_id = 2;
+}
+
+message JoinEventResponse {
+  bool success = 1;
+}
+
+message LeaveEventRequest {
+  string event_id = 1;
+  string user_id = 2;
+}
+
+message LeaveEventResponse {
+  bool success = 1;
+}
+
+message GetEventMembersRequest {
+  string event_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message EventMemberListResponse {
+  repeated string user_ids = 1;
+  int32 total = 2;
+}
+
+message GenerateInviteCodeRequest {
+  string event_id = 1;
+  string user_id = 2;
+}
+
+message InviteCodeResponse {
+  string code = 1;
+  string event_id = 2;
+}
+
+message JoinByInviteCodeRequest {
+  string invite_code = 1;
+  string user_id = 2;
+}
+
+message UpdateMediaCountRequest {
+  string event_id = 1;
+  int32 delta = 2;
+}
+
+message UpdateMediaCountResponse {
+  bool success = 1;
+}
+
+message CountUserEventsRequest {
+  string user_id = 1;
+}
+
+message CountResponse {
+  int32 count = 1;
+}
+
+message ListEventsForUsersRequest {
+  repeated string user_ids = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message EventResponse {
+  string id = 1;
+  string title = 2;
+  string date = 3;
+  string location = 4;
+  string image_url = 5;
+  string creator_id = 6;
+  int32 member_count = 7;
+  int32 media_count = 8;
+  string invite_code = 9;
+  string created_at = 10;
+}
+
+message EventListResponse {
+  repeated EventResponse events = 1;
+  int32 total = 2;
+}
+
+// ── Service ──
+
+service EventService {
+  rpc CreateEvent(CreateEventRequest) returns (EventResponse);
+  rpc GetEvent(GetEventRequest) returns (EventResponse);
+  rpc UpdateEvent(UpdateEventRequest) returns (EventResponse);
+  rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
+  rpc ListUserEvents(ListUserEventsRequest) returns (EventListResponse);
+  rpc GetUpcomingEvents(GetUpcomingEventsRequest) returns (EventListResponse);
+  rpc JoinEvent(JoinEventRequest) returns (JoinEventResponse);
+  rpc LeaveEvent(LeaveEventRequest) returns (LeaveEventResponse);
+  rpc GetEventMembers(GetEventMembersRequest) returns (EventMemberListResponse);
+  rpc GenerateInviteCode(GenerateInviteCodeRequest) returns (InviteCodeResponse);
+  rpc JoinByInviteCode(JoinByInviteCodeRequest) returns (JoinEventResponse);
+  rpc UpdateMediaCount(UpdateMediaCountRequest) returns (UpdateMediaCountResponse);
+  rpc CountUserEvents(CountUserEventsRequest) returns (CountResponse);
+  rpc ListEventsForUsers(ListEventsForUsersRequest) returns (EventListResponse);
+}
