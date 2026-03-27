@@ -1,0 +1,297 @@
+syntax = "proto3";
+
+package dump.media;
+
+option java_package = "com.dump.mediaservice.grpc";
+option java_multiple_files = true;
+
+// ── Enums ──
+
+enum MediaType {
+  PHOTO = 0;
+  VIDEO = 1;
+}
+
+// ── Messages ──
+
+message UserSummary {
+  string id = 1;
+  string name = 2;
+  string username = 3;
+  string avatar_url = 4;
+}
+
+// Upload
+message UploadMediaRequest {
+  string event_id = 1;
+  string user_id = 2;
+  string caption = 3;
+  string location = 4;
+  MediaType type = 5;
+  string filename = 6;
+  double aspect_ratio = 7;
+  string audio_attribution = 8;
+}
+
+message UploadMediaResponse {
+  string presigned_upload_url = 1;
+  string media_id = 2;
+}
+
+message ConfirmUploadRequest {
+  string media_id = 1;
+}
+
+message ConfirmUploadResponse {
+  bool success = 1;
+  MediaResponse media = 2;
+}
+
+// Media retrieval
+message GetMediaRequest {
+  string media_id = 1;
+}
+
+message ListEventMediaRequest {
+  string event_id = 1;
+  string filter = 2;
+  int32 page = 3;
+  int32 size = 4;
+}
+
+message ListUserMediaRequest {
+  string user_id = 1;
+  string filter = 2;
+  int32 page = 3;
+  int32 size = 4;
+}
+
+message GetMediaFeedRequest {
+  string event_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message GetFeedForEventsRequest {
+  repeated string event_ids = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message MediaResponse {
+  string id = 1;
+  string image_url = 2;
+  string thumbnail_url = 3;
+  string event_id = 4;
+  string user_id = 5;
+  string caption = 6;
+  string location = 7;
+  MediaType type = 8;
+  double aspect_ratio = 9;
+  string audio_attribution = 10;
+  int32 like_count = 11;
+  int32 comment_count = 12;
+  bool is_highlight = 13;
+  string created_at = 14;
+  UserSummary user = 15;
+}
+
+message MediaListResponse {
+  repeated MediaResponse items = 1;
+  int32 total = 2;
+}
+
+// Feed (event recap cards for home screen)
+message FeedPost {
+  string id = 1;
+  string event_id = 2;
+  string title = 3;
+  string date = 4;
+  string image_url = 5;
+  int32 likes = 6;
+  int32 comments = 7;
+}
+
+message FeedResponse {
+  repeated FeedPost posts = 1;
+  int32 total = 2;
+}
+
+// Interactions
+message LikeRequest {
+  string media_id = 1;
+  string user_id = 2;
+}
+
+message LikeResponse {
+  bool success = 1;
+  int32 new_count = 2;
+}
+
+message CommentRequest {
+  string media_id = 1;
+  string user_id = 2;
+  string text = 3;
+}
+
+message CommentResponse {
+  string id = 1;
+  string media_id = 2;
+  string user_id = 3;
+  string text = 4;
+  string created_at = 5;
+}
+
+message ListCommentsRequest {
+  string media_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message CommentListResponse {
+  repeated CommentResponse comments = 1;
+  int32 total = 2;
+}
+
+message BookmarkRequest {
+  string media_id = 1;
+  string user_id = 2;
+}
+
+message BookmarkResponse {
+  bool success = 1;
+}
+
+message ListBookmarksRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+// Clippings
+message ClipRequest {
+  string media_id = 1;
+  string user_id = 2;
+}
+
+message ClipResponse {
+  bool success = 1;
+}
+
+message ListClippingsRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message ClippingItem {
+  string id = 1;
+  string image_url = 2;
+  string date = 3;
+  string media_id = 4;
+}
+
+message ClippingListResponse {
+  repeated ClippingItem clippings = 1;
+  int32 total = 2;
+}
+
+message CountUserClippingsRequest {
+  string user_id = 1;
+}
+
+message CountResponse {
+  int32 count = 1;
+}
+
+// Collections
+message CreateCollectionRequest {
+  string user_id = 1;
+  string title = 2;
+}
+
+message AddToCollectionRequest {
+  string collection_id = 1;
+  string media_id = 2;
+}
+
+message RemoveFromCollectionRequest {
+  string collection_id = 1;
+  string media_id = 2;
+}
+
+message ListCollectionsRequest {
+  string user_id = 1;
+}
+
+message GetCollectionItemsRequest {
+  string collection_id = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message CollectionDetailResponse {
+  CollectionResponse collection = 1;
+  repeated MediaResponse items = 2;
+  int32 total = 3;
+}
+
+message CollectionResponse {
+  string id = 1;
+  string title = 2;
+  string thumbnail_url = 3;
+  int32 item_count = 4;
+}
+
+message CollectionListResponse {
+  repeated CollectionResponse collections = 1;
+}
+
+// Profile image upload (not tied to any event)
+message UploadProfileImageRequest {
+  string user_id = 1;
+  string filename = 2;
+}
+
+message UploadProfileImageResponse {
+  string presigned_upload_url = 1;
+  string public_url = 2;
+}
+
+// ── Service ──
+
+service MediaService {
+  // Upload flow
+  rpc InitiateUpload(UploadMediaRequest) returns (UploadMediaResponse);
+  rpc ConfirmUpload(ConfirmUploadRequest) returns (ConfirmUploadResponse);
+  rpc UploadProfileImage(UploadProfileImageRequest) returns (UploadProfileImageResponse);
+
+  // Media retrieval
+  rpc GetMedia(GetMediaRequest) returns (MediaResponse);
+  rpc ListEventMedia(ListEventMediaRequest) returns (MediaListResponse);
+  rpc ListUserMedia(ListUserMediaRequest) returns (MediaListResponse);
+  rpc GetMediaFeed(GetMediaFeedRequest) returns (MediaListResponse);
+  rpc GetFeedForEvents(GetFeedForEventsRequest) returns (FeedResponse);
+
+  // Interactions
+  rpc Like(LikeRequest) returns (LikeResponse);
+  rpc Unlike(LikeRequest) returns (LikeResponse);
+  rpc Comment(CommentRequest) returns (CommentResponse);
+  rpc ListComments(ListCommentsRequest) returns (CommentListResponse);
+  rpc Bookmark(BookmarkRequest) returns (BookmarkResponse);
+  rpc RemoveBookmark(BookmarkRequest) returns (BookmarkResponse);
+  rpc ListBookmarks(ListBookmarksRequest) returns (MediaListResponse);
+
+  // Clippings
+  rpc Clip(ClipRequest) returns (ClipResponse);
+  rpc RemoveClip(ClipRequest) returns (ClipResponse);
+  rpc ListClippings(ListClippingsRequest) returns (ClippingListResponse);
+  rpc CountUserClippings(CountUserClippingsRequest) returns (CountResponse);
+
+  // Collections
+  rpc CreateCollection(CreateCollectionRequest) returns (CollectionResponse);
+  rpc AddToCollection(AddToCollectionRequest) returns (CollectionResponse);
+  rpc RemoveFromCollection(RemoveFromCollectionRequest) returns (CollectionResponse);
+  rpc ListCollections(ListCollectionsRequest) returns (CollectionListResponse);
+  rpc GetCollectionItems(GetCollectionItemsRequest) returns (CollectionDetailResponse);
+}
