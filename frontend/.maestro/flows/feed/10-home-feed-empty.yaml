@@ -1,0 +1,22 @@
+appId: host.exp.Exponent
+tags:
+  - feed
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Feed Empty Tester"
+      TEST_USERNAME: "feedempty${output.random}"
+      TEST_EMAIL: "feedempty_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Fresh user should see empty feed state
+- extendedWaitUntil:
+    visible:
+      id: "homeFeed.container"
+    timeout: 10000
+- assertVisible: "Welcome to Dump"
+- assertVisible: "Create Event"
+- assertVisible: "Join Event"

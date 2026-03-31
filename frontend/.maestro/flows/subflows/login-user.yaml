@@ -1,0 +1,15 @@
+appId: host.exp.Exponent
+---
+- assertVisible:
+    id: "login.container"
+- tapOn:
+    id: "login.input.email"
+- inputText: ${TEST_EMAIL}
+- tapOn:
+    id: "login.input.password"
+- inputText: ${TEST_PASSWORD}
+- hideKeyboard
+- tapOn:
+    id: "login.btn.signIn"
+- waitForAnimationToEnd:
+    timeout: 15000

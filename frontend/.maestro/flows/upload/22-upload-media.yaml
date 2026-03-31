@@ -1,0 +1,71 @@
+appId: host.exp.Exponent
+tags:
+  - upload
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Upload Tester"
+      TEST_USERNAME: "uploadtester${output.random}"
+      TEST_EMAIL: "upload_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Create event and navigate to upload
+- tapOn:
+    id: "tab.upload"
+- extendedWaitUntil:
+    visible: "Select Event"
+    timeout: 10000
+# May need scrolling on smaller screens
+- scrollUntilVisible:
+    element:
+      id: "selectEvent.btn.createEvent"
+    direction: DOWN
+- tapOn:
+    id: "selectEvent.btn.createEvent"
+- waitForAnimationToEnd
+- tapOn:
+    id: "createEvent.input.title"
+- inputText: "Upload Test Event"
+- tapOn:
+    id: "createEvent.input.location"
+- inputText: "Tokyo"
+- hideKeyboard
+- tapOn:
+    id: "createEvent.btn.submit"
+# Wait for API call, navigation back, and event list refetch
+- extendedWaitUntil:
+    visible: "Upload Test Event"
+    timeout: 20000
+# Select event and continue
+- tapOn:
+    text: "Upload Test Event"
+- waitForAnimationToEnd
+- tapOn:
+    id: "selectEvent.btn.continue"
+- waitForAnimationToEnd
+# Verify upload UI elements
+- assertVisible: "Import your media"
+- assertVisible:
+    id: "uploadMedia.btn.pickMedia"
+# Verify metadata fields are present
+- scrollUntilVisible:
+    element:
+      id: "uploadMedia.input.caption"
+    direction: DOWN
+- tapOn:
+    id: "uploadMedia.input.caption"
+- inputText: "E2E test caption"
+- scrollUntilVisible:
+    element:
+      id: "uploadMedia.input.location"
+    direction: DOWN
+- tapOn:
+    id: "uploadMedia.input.location"
+- inputText: "Central Park"
+- hideKeyboard
+# Upload button should be present (may be disabled without media)
+- assertVisible:
+    id: "uploadMedia.btn.upload"

@@ -1,0 +1,51 @@
+appId: host.exp.Exponent
+tags:
+  - upload
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Select Event Tester"
+      TEST_USERNAME: "selectevent${output.random}"
+      TEST_EMAIL: "selectevent_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Navigate to Upload tab
+- tapOn:
+    id: "tab.upload"
+- extendedWaitUntil:
+    visible: "Select Event"
+    timeout: 10000
+# Create an event first (may need scrolling on smaller screens)
+- scrollUntilVisible:
+    element:
+      id: "selectEvent.btn.createEvent"
+    direction: DOWN
+- tapOn:
+    id: "selectEvent.btn.createEvent"
+- waitForAnimationToEnd
+- tapOn:
+    id: "createEvent.input.title"
+- inputText: "Select Test Event"
+- tapOn:
+    id: "createEvent.input.location"
+- inputText: "London"
+- hideKeyboard
+- tapOn:
+    id: "createEvent.btn.submit"
+# Wait for API call, navigation back, and event list refetch
+- extendedWaitUntil:
+    visible: "Select Test Event"
+    timeout: 20000
+# Tap the event to select it
+- tapOn:
+    text: "Select Test Event"
+- waitForAnimationToEnd
+# Continue to upload
+- tapOn:
+    id: "selectEvent.btn.continue"
+- waitForAnimationToEnd
+# Should be on upload-media screen
+- assertVisible: "Import your media"

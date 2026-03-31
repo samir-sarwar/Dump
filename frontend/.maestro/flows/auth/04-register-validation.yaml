@@ -1,0 +1,73 @@
+appId: host.exp.Exponent
+tags:
+  - auth
+  - validation
+---
+- runFlow:
+    file: ../subflows/launch.yaml
+- tapOn:
+    id: "login.btn.createAccount"
+- waitForAnimationToEnd
+# Test 1: Empty fields - scroll to button first
+- scrollUntilVisible:
+    element:
+      id: "register.btn.createAccount"
+    direction: DOWN
+- tapOn:
+    id: "register.btn.createAccount"
+- scrollUntilVisible:
+    element:
+      id: "register.text.error"
+    direction: UP
+    timeout: 5000
+- assertVisible:
+    id: "register.text.error"
+# Test 2: Fill fields but skip terms checkbox - scroll up first
+- scrollUntilVisible:
+    element:
+      id: "register.input.name"
+    direction: UP
+- tapOn:
+    id: "register.input.name"
+- inputText: "Validation Test"
+- tapOn:
+    id: "register.input.username"
+- inputText: "valtest"
+- scrollUntilVisible:
+    element:
+      id: "register.input.email"
+    direction: DOWN
+- tapOn:
+    id: "register.input.email"
+- inputText: "val@test.com"
+- scrollUntilVisible:
+    element:
+      id: "register.input.password"
+    direction: DOWN
+- tapOn:
+    id: "register.input.password"
+- inputText: "Test1234!"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register.btn.createAccount"
+    direction: DOWN
+- tapOn:
+    id: "register.btn.createAccount"
+- scrollUntilVisible:
+    element:
+      id: "register.text.error"
+    direction: UP
+    timeout: 5000
+- assertVisible:
+    id: "register.text.error"
+# Test 3: Navigate back to login
+- scrollUntilVisible:
+    element:
+      id: "register.btn.login"
+    direction: DOWN
+- tapOn:
+    id: "register.btn.login"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "login.container"

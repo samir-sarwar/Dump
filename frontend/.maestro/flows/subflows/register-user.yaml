@@ -1,0 +1,55 @@
+appId: host.exp.Exponent
+---
+- assertVisible:
+    id: "login.container"
+- tapOn:
+    id: "login.btn.createAccount"
+- waitForAnimationToEnd
+# Fill name
+- tapOn:
+    id: "register.input.name"
+- inputText: ${TEST_NAME}
+- hideKeyboard
+# Fill username
+- tapOn:
+    id: "register.input.username"
+- inputText: ${TEST_USERNAME}
+- hideKeyboard
+# Scroll to make email visible
+- scrollUntilVisible:
+    element:
+      id: "register.input.email"
+    direction: DOWN
+- tapOn:
+    id: "register.input.email"
+- inputText: ${TEST_EMAIL}
+- hideKeyboard
+# Scroll to make password visible
+- scrollUntilVisible:
+    element:
+      id: "register.input.password"
+    direction: DOWN
+- tapOn:
+    id: "register.input.password"
+# Dismiss iOS Strong Password popup if it appears (tap X to close)
+- tapOn:
+    point: "92%,61%"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    id: "register.input.password"
+- inputText: ${TEST_PASSWORD}
+- hideKeyboard
+# Accept terms
+- scrollUntilVisible:
+    element:
+      id: "register.checkbox.terms"
+    direction: DOWN
+- tapOn:
+    id: "register.checkbox.terms"
+# Submit
+- tapOn:
+    id: "register.btn.createAccount"
+- waitForAnimationToEnd:
+    timeout: 15000

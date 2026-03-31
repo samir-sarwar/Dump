@@ -1,0 +1,20 @@
+appId: host.exp.Exponent
+tags:
+  - auth
+  - smoke
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "E2E Tester"
+      TEST_USERNAME: "e2etester${output.random}"
+      TEST_EMAIL: "e2e_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# After registration, should auto-navigate to tabs
+- extendedWaitUntil:
+    visible:
+      id: "homeFeed.container"
+    timeout: 10000

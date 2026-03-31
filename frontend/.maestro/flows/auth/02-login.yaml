@@ -1,0 +1,40 @@
+appId: host.exp.Exponent
+tags:
+  - auth
+  - smoke
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+# First register a user, then logout, then login
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Login Tester"
+      TEST_USERNAME: "logintester${output.random}"
+      TEST_EMAIL: "login_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Navigate to profile and logout
+- tapOn:
+    id: "tab.profile"
+- waitForAnimationToEnd
+- tapOn:
+    id: "profile.btn.logout"
+- waitForAnimationToEnd
+- tapOn:
+    text: "Log Out"
+    index: 1
+- waitForAnimationToEnd:
+    timeout: 5000
+# Now login with same credentials
+- assertVisible:
+    id: "login.container"
+- runFlow:
+    file: ../subflows/login-user.yaml
+    env:
+      TEST_EMAIL: "login_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+- extendedWaitUntil:
+    visible:
+      id: "homeFeed.container"
+    timeout: 10000

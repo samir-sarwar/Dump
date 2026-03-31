@@ -1,0 +1,37 @@
+appId: host.exp.Exponent
+tags:
+  - feed
+  - search
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Search Tester"
+      TEST_USERNAME: "searchtester${output.random}"
+      TEST_EMAIL: "search_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Navigate to search
+- tapOn:
+    id: "homeFeed.btn.search"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "search.input.query"
+# Type a search query
+- tapOn:
+    id: "search.input.query"
+- inputText: "e2etester"
+- waitForAnimationToEnd:
+    timeout: 3000
+# Clear the search
+- tapOn:
+    id: "search.btn.clearQuery"
+- waitForAnimationToEnd
+# Go back
+- tapOn:
+    id: "search.btn.back"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "homeFeed.container"

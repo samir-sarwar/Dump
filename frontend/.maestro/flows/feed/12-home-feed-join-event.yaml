@@ -1,0 +1,38 @@
+appId: host.exp.Exponent
+tags:
+  - feed
+  - events
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Join Event Tester"
+      TEST_USERNAME: "joinevent${output.random}"
+      TEST_EMAIL: "joinevent_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# From empty feed, tap "Join Event"
+- assertVisible: "Join Event"
+- tapOn:
+    text: "Join Event"
+- waitForAnimationToEnd
+# Join event modal should appear
+- assertVisible: "Enter the invite code shared with you"
+# Try invalid code
+- tapOn:
+    id: "joinEventModal.input.code"
+- inputText: "INVALIDCODE"
+- tapOn:
+    id: "joinEventModal.btn.join"
+- extendedWaitUntil:
+    visible:
+      id: "joinEventModal.text.error"
+    timeout: 10000
+- assertVisible:
+    id: "joinEventModal.text.error"
+# Cancel
+- tapOn:
+    id: "joinEventModal.btn.cancel"
+- waitForAnimationToEnd

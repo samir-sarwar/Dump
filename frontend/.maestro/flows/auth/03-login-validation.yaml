@@ -1,0 +1,27 @@
+appId: host.exp.Exponent
+tags:
+  - auth
+  - validation
+---
+- runFlow:
+    file: ../subflows/launch.yaml
+# Test 1: Empty fields
+- tapOn:
+    id: "login.btn.signIn"
+- assertVisible: "Please fill in all fields"
+# Test 2: Invalid credentials
+- tapOn:
+    id: "login.input.email"
+- inputText: "wrong@email.com"
+- tapOn:
+    id: "login.input.password"
+- inputText: "wrongpass"
+- hideKeyboard
+- tapOn:
+    id: "login.btn.signIn"
+- waitForAnimationToEnd:
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      id: "login.text.error"
+    timeout: 8000

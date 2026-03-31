@@ -1,0 +1,46 @@
+appId: host.exp.Exponent
+tags:
+  - upload
+  - events
+  - smoke
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Event Creator"
+      TEST_USERNAME: "eventcreator${output.random}"
+      TEST_EMAIL: "eventcreator_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Navigate to Upload tab
+- tapOn:
+    id: "tab.upload"
+- extendedWaitUntil:
+    visible: "Select Event"
+    timeout: 10000
+# Tap "Create a New Event" (may need scrolling on smaller screens)
+- scrollUntilVisible:
+    element:
+      id: "selectEvent.btn.createEvent"
+    direction: DOWN
+- tapOn:
+    id: "selectEvent.btn.createEvent"
+- waitForAnimationToEnd
+- assertVisible: "Create Event"
+# Fill form
+- tapOn:
+    id: "createEvent.input.title"
+- inputText: "E2E Test Party"
+- tapOn:
+    id: "createEvent.input.location"
+- inputText: "New York City"
+- hideKeyboard
+# Submit
+- tapOn:
+    id: "createEvent.btn.submit"
+# Wait for API call, navigation back, and event list refetch
+- extendedWaitUntil:
+    visible: "E2E Test Party"
+    timeout: 20000

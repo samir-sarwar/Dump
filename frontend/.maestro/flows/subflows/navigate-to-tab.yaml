@@ -1,0 +1,7 @@
+appId: host.exp.Exponent
+env:
+  TAB_ID: "tab.feed"
+---
+- tapOn:
+    id: "${TAB_ID}"
+- waitForAnimationToEnd
