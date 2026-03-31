@@ -1,0 +1,206 @@
+appId: host.exp.Exponent
+tags:
+  - regression
+  - smoke
+name: "Full User Journey"
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+# 1. LAUNCH
+- runFlow:
+    file: ../subflows/launch.yaml
+
+# 2. REGISTER
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Journey Tester"
+      TEST_USERNAME: "journey${output.random}"
+      TEST_EMAIL: "journey_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+
+# 3. VERIFY EMPTY FEED
+- extendedWaitUntil:
+    visible:
+      id: "homeFeed.container"
+    timeout: 10000
+- assertVisible: "Welcome to Dump"
+- assertVisible: "Create Event"
+
+# 4. TEST JOIN EVENT MODAL (from empty feed)
+- tapOn:
+    text: "Join Event"
+- waitForAnimationToEnd
+- assertVisible: "Enter the invite code shared with you"
+- tapOn:
+    id: "joinEventModal.btn.cancel"
+- waitForAnimationToEnd
+
+# 5. NAVIGATE TO UPLOAD TAB
+- tapOn:
+    id: "tab.upload"
+- waitForAnimationToEnd
+- assertVisible: "Select Event"
+
+# 6. CREATE EVENT
+- tapOn:
+    id: "selectEvent.btn.createEvent"
+- waitForAnimationToEnd
+- tapOn:
+    id: "createEvent.input.title"
+- inputText: "Journey Party"
+- tapOn:
+    id: "createEvent.input.location"
+- inputText: "London"
+- hideKeyboard
+- tapOn:
+    id: "createEvent.btn.submit"
+- waitForAnimationToEnd:
+    timeout: 15000
+
+# 7. VERIFY EVENT IN LIST (wait for refetch after navigation back)
+- extendedWaitUntil:
+    visible:
+      text: "Journey Party"
+    timeout: 10000
+
+# 8. SELECT EVENT AND GO TO UPLOAD SCREEN
+- tapOn:
+    text: "Journey Party"
+- waitForAnimationToEnd
+- tapOn:
+    id: "selectEvent.btn.continue"
+- waitForAnimationToEnd
+- assertVisible: "Import your media"
+# Go back (no media to upload in E2E)
+- back
+- waitForAnimationToEnd
+
+# 9. NAVIGATE TO LIBRARY
+- tapOn:
+    id: "tab.library"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "library.container"
+- assertVisible: "CONTRIBUTE"
+- assertVisible: "ALL"
+
+# 10. NAVIGATE TO PROFILE
+- tapOn:
+    id: "tab.profile"
+- waitForAnimationToEnd
+- assertVisible: "Journey Tester"
+- assertVisible: "Edit Profile"
+
+# 11. EDIT PROFILE
+- tapOn:
+    id: "profile.btn.editProfile"
+- waitForAnimationToEnd
+- tapOn:
+    id: "editProfile.input.bio"
+- inputText: "E2E journey bio"
+- hideKeyboard
+- tapOn:
+    id: "editProfile.btn.save"
+- waitForAnimationToEnd:
+    timeout: 10000
+- assertVisible: "E2E journey bio"
+
+# 12. VIEW EVENT FROM PROFILE
+- scrollUntilVisible:
+    element:
+      text: "Journey Party"
+    direction: DOWN
+- assertVisible: "Journey Party"
+
+# 13. OPEN EVENT MEDIA FROM PROFILE
+- tapOn:
+    id: "profile.card.featuredEvent"
+- waitForAnimationToEnd:
+    timeout: 8000
+# Verify event media screen loaded
+- extendedWaitUntil:
+    visible:
+      id: "eventMedia.toggle.SCROLL"
+    timeout: 10000
+- assertVisible:
+    id: "eventMedia.toggle.COLLAGE"
+
+# 14. GO TO EVENT DETAILS
+- tapOn:
+    id: "eventMedia.btn.details"
+- waitForAnimationToEnd:
+    timeout: 8000
+# Wait for event details API data to load
+- extendedWaitUntil:
+    visible:
+      text: "Journey Party"
+    timeout: 10000
+- assertVisible: "London"
+# Share invite code
+- tapOn:
+    id: "eventDetails.btn.shareInvite"
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    text: "OK"
+- waitForAnimationToEnd
+# Go back to event media
+- tapOn:
+    id: "eventDetails.btn.back"
+- waitForAnimationToEnd
+
+# 15. TEST COLLAGE MODE
+- tapOn:
+    id: "eventMedia.toggle.COLLAGE"
+- waitForAnimationToEnd
+- assertVisible: "ALL"
+- tapOn:
+    id: "eventMedia.toggle.SCROLL"
+- waitForAnimationToEnd
+
+# 16. GO BACK AND TEST SEARCH
+- tapOn:
+    id: "eventMedia.btn.back"
+- waitForAnimationToEnd
+- tapOn:
+    id: "tab.feed"
+- waitForAnimationToEnd
+- tapOn:
+    id: "homeFeed.btn.search"
+- waitForAnimationToEnd
+- tapOn:
+    id: "search.input.query"
+- inputText: "journey"
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    id: "search.btn.back"
+- waitForAnimationToEnd
+
+# 17. LOGOUT
+- tapOn:
+    id: "tab.profile"
+- waitForAnimationToEnd
+- tapOn:
+    id: "profile.btn.logout"
+- waitForAnimationToEnd
+- tapOn:
+    text: "Log Out"
+    index: 1
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible:
+    id: "login.container"
+
+# 18. LOGIN BACK
+- runFlow:
+    file: ../subflows/login-user.yaml
+    env:
+      TEST_EMAIL: "journey_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+
+# 19. VERIFY LOGGED IN
+- extendedWaitUntil:
+    visible:
+      id: "homeFeed.container"
+    timeout: 10000

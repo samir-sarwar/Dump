@@ -1,0 +1,63 @@
+appId: host.exp.Exponent
+tags:
+  - interactions
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Comment Tester"
+      TEST_USERNAME: "commenttester${output.random}"
+      TEST_EMAIL: "comment_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Create an event
+- tapOn:
+    id: "tab.upload"
+- waitForAnimationToEnd
+- tapOn:
+    id: "selectEvent.btn.createEvent"
+- waitForAnimationToEnd
+- tapOn:
+    id: "createEvent.input.title"
+- inputText: "Comment Test Event"
+- tapOn:
+    id: "createEvent.input.location"
+- inputText: "Seoul"
+- hideKeyboard
+- tapOn:
+    id: "createEvent.btn.submit"
+- waitForAnimationToEnd:
+    timeout: 15000
+# Go to profile and open event media
+- tapOn:
+    id: "tab.profile"
+- waitForAnimationToEnd
+- tapOn:
+    id: "profile.card.featuredEvent"
+- waitForAnimationToEnd:
+    timeout: 8000
+# Tap the comment icon (if media exists)
+- tapOn:
+    id: "interaction.message-circle"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+# Comment sheet should appear (if triggered)
+- tapOn:
+    id: "commentSheet.input.text"
+    optional: true
+- inputText:
+    text: "E2E test comment!"
+    optional: true
+- tapOn:
+    id: "commentSheet.btn.send"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+# Close comment sheet
+- tapOn:
+    id: "commentSheet.btn.close"
+    optional: true
+- waitForAnimationToEnd

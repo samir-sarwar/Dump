@@ -1,0 +1,55 @@
+appId: host.exp.Exponent
+tags:
+  - library
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Library Browse Tester"
+      TEST_USERNAME: "libbrowse${output.random}"
+      TEST_EMAIL: "libbrowse_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Create an event first so library has content
+- tapOn:
+    id: "tab.upload"
+- waitForAnimationToEnd
+- tapOn:
+    id: "selectEvent.btn.createEvent"
+- waitForAnimationToEnd
+- tapOn:
+    id: "createEvent.input.title"
+- inputText: "Library Test Event"
+- tapOn:
+    id: "createEvent.input.location"
+- inputText: "Paris"
+- hideKeyboard
+- tapOn:
+    id: "createEvent.btn.submit"
+- waitForAnimationToEnd:
+    timeout: 15000
+# Navigate to Library
+- tapOn:
+    id: "tab.library"
+- waitForAnimationToEnd:
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: "library.container"
+    timeout: 15000
+# Should see event gallery with CONTRIBUTE button
+- assertVisible: "CONTRIBUTE"
+# Filter tabs should be visible
+- assertVisible: "ALL"
+- assertVisible: "PHOTOS"
+- assertVisible: "VIDEOS"
+- assertVisible: "HIGHLIGHTS"
+# Tap a filter
+- tapOn:
+    text: "PHOTOS"
+- waitForAnimationToEnd
+- tapOn:
+    text: "ALL"
+- waitForAnimationToEnd

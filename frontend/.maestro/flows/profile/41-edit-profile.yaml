@@ -1,0 +1,44 @@
+appId: host.exp.Exponent
+tags:
+  - profile
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Edit Profile Tester"
+      TEST_USERNAME: "editprofile${output.random}"
+      TEST_EMAIL: "editprofile_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Navigate to Profile
+- tapOn:
+    id: "tab.profile"
+- waitForAnimationToEnd
+- tapOn:
+    id: "profile.btn.editProfile"
+- waitForAnimationToEnd
+# On edit profile screen
+- assertVisible:
+    id: "editProfile.input.name"
+- assertVisible:
+    id: "editProfile.input.bio"
+# Clear and update name
+- tapOn:
+    id: "editProfile.input.name"
+- eraseText:
+    charactersToErase: 30
+- inputText: "Updated E2E Name"
+# Update bio
+- tapOn:
+    id: "editProfile.input.bio"
+- inputText: "This is my E2E test bio"
+- hideKeyboard
+# Save
+- tapOn:
+    id: "editProfile.btn.save"
+- waitForAnimationToEnd:
+    timeout: 10000
+# Should navigate back to profile and show updated name
+- assertVisible: "Updated E2E Name"

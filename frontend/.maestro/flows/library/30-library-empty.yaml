@@ -1,0 +1,20 @@
+appId: host.exp.Exponent
+tags:
+  - library
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Library Empty Tester"
+      TEST_USERNAME: "libempty${output.random}"
+      TEST_EMAIL: "libempty_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Navigate to Library tab
+- tapOn:
+    id: "tab.library"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "emptyState.container"

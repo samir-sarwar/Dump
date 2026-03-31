@@ -1,0 +1,59 @@
+appId: host.exp.Exponent
+tags:
+  - events
+  - media
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Collage Tester"
+      TEST_USERNAME: "collagetester${output.random}"
+      TEST_EMAIL: "collage_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Create an event
+- tapOn:
+    id: "tab.upload"
+- waitForAnimationToEnd
+- tapOn:
+    id: "selectEvent.btn.createEvent"
+- waitForAnimationToEnd
+- tapOn:
+    id: "createEvent.input.title"
+- inputText: "Collage Test Event"
+- tapOn:
+    id: "createEvent.input.location"
+- inputText: "Rome"
+- hideKeyboard
+- tapOn:
+    id: "createEvent.btn.submit"
+- waitForAnimationToEnd:
+    timeout: 15000
+# Navigate to Profile and open event
+- tapOn:
+    id: "tab.profile"
+- waitForAnimationToEnd
+- tapOn:
+    id: "profile.card.featuredEvent"
+- waitForAnimationToEnd:
+    timeout: 8000
+# Switch to COLLAGE mode
+- tapOn:
+    id: "eventMedia.toggle.COLLAGE"
+- waitForAnimationToEnd
+# Should see filter tabs
+- assertVisible: "ALL"
+- assertVisible: "PHOTOS"
+# Tap a filter
+- tapOn:
+    text: "VIDEOS"
+- waitForAnimationToEnd
+- tapOn:
+    text: "ALL"
+- waitForAnimationToEnd
+# Switch back to SCROLL
+- tapOn:
+    id: "eventMedia.toggle.SCROLL"
+- waitForAnimationToEnd

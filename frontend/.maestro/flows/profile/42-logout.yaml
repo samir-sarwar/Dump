@@ -1,0 +1,34 @@
+appId: host.exp.Exponent
+tags:
+  - profile
+  - auth
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Logout Tester"
+      TEST_USERNAME: "logouttester${output.random}"
+      TEST_EMAIL: "logout_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Navigate to Profile
+- tapOn:
+    id: "tab.profile"
+- waitForAnimationToEnd
+# Tap logout
+- tapOn:
+    id: "profile.btn.logout"
+- waitForAnimationToEnd
+# Confirm the alert dialog
+- tapOn:
+    text: "Log Out"
+    index: 1
+- waitForAnimationToEnd:
+    timeout: 5000
+# Should return to login screen
+- assertVisible:
+    id: "login.container"
+- assertVisible:
+    id: "login.btn.signIn"

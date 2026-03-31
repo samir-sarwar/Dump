@@ -1,0 +1,65 @@
+appId: host.exp.Exponent
+tags:
+  - events
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Event Detail Tester"
+      TEST_USERNAME: "eventdetail${output.random}"
+      TEST_EMAIL: "eventdetail_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Create an event first
+- tapOn:
+    id: "tab.upload"
+- waitForAnimationToEnd
+- tapOn:
+    id: "selectEvent.btn.createEvent"
+- waitForAnimationToEnd
+- tapOn:
+    id: "createEvent.input.title"
+- inputText: "Detail Test Event"
+- tapOn:
+    id: "createEvent.input.location"
+- inputText: "Berlin"
+- hideKeyboard
+- tapOn:
+    id: "createEvent.btn.submit"
+- waitForAnimationToEnd:
+    timeout: 15000
+# Navigate to Profile to find the event
+- tapOn:
+    id: "tab.profile"
+- waitForAnimationToEnd
+# Tap on the featured event card
+- tapOn:
+    id: "profile.card.featuredEvent"
+- waitForAnimationToEnd:
+    timeout: 8000
+# Should be in event media screen, tap details button
+- tapOn:
+    id: "eventMedia.btn.details"
+- waitForAnimationToEnd:
+    timeout: 8000
+# On event details screen — wait for API data to load
+- extendedWaitUntil:
+    visible:
+      text: "Detail Test Event"
+    timeout: 10000
+- assertVisible: "Berlin"
+# Share invite code
+- tapOn:
+    id: "eventDetails.btn.shareInvite"
+- waitForAnimationToEnd:
+    timeout: 5000
+# Dismiss the alert
+- tapOn:
+    text: "OK"
+- waitForAnimationToEnd
+# Go back
+- tapOn:
+    id: "eventDetails.btn.back"
+- waitForAnimationToEnd

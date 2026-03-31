@@ -1,0 +1,30 @@
+appId: host.exp.Exponent
+tags:
+  - profile
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Profile Viewer"
+      TEST_USERNAME: "profileviewer${output.random}"
+      TEST_EMAIL: "profileviewer_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Navigate to Profile tab
+- tapOn:
+    id: "tab.profile"
+- waitForAnimationToEnd
+# Verify profile elements
+- assertVisible:
+    id: "profile.btn.editProfile"
+- assertVisible: "Edit Profile"
+- assertVisible: "Clippings"
+- assertVisible: "Followers"
+- assertVisible: "Events"
+# Verify logout button exists
+- assertVisible:
+    id: "profile.btn.logout"
+# Verify user name
+- assertVisible: "Profile Viewer"

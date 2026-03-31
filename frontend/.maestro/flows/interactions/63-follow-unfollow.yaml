@@ -1,0 +1,54 @@
+appId: host.exp.Exponent
+tags:
+  - interactions
+  - social
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Follow Tester"
+      TEST_USERNAME: "followtester${output.random}"
+      TEST_EMAIL: "follow_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Navigate to search
+- tapOn:
+    id: "homeFeed.btn.search"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "search.input.query"
+# Search for a user
+- tapOn:
+    id: "search.input.query"
+- inputText: "e2etester"
+- waitForAnimationToEnd:
+    timeout: 5000
+# If results appear, tap the first one
+# This test is best-effort since we need another user to exist
+- tapOn:
+    text: "e2etester"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+# On user profile, tap Follow
+- tapOn:
+    id: "userProfile.btn.follow"
+    optional: true
+- waitForAnimationToEnd
+# Tap again to unfollow
+- tapOn:
+    id: "userProfile.btn.follow"
+    optional: true
+- waitForAnimationToEnd
+# Go back
+- tapOn:
+    id: "userProfile.btn.back"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "search.btn.back"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "homeFeed.container"

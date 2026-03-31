@@ -1,0 +1,50 @@
+appId: host.exp.Exponent
+tags:
+  - interactions
+---
+- evalScript: ${output.random = '' + Math.floor(Math.random() * 1000000)}
+- runFlow:
+    file: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/register-user.yaml
+    env:
+      TEST_NAME: "Like Tester"
+      TEST_USERNAME: "liketester${output.random}"
+      TEST_EMAIL: "like_${output.random}@dump.test"
+      TEST_PASSWORD: "Secure1234!"
+# Create an event and navigate to its media view
+- tapOn:
+    id: "tab.upload"
+- waitForAnimationToEnd
+- tapOn:
+    id: "selectEvent.btn.createEvent"
+- waitForAnimationToEnd
+- tapOn:
+    id: "createEvent.input.title"
+- inputText: "Like Test Event"
+- tapOn:
+    id: "createEvent.input.location"
+- inputText: "Dubai"
+- hideKeyboard
+- tapOn:
+    id: "createEvent.btn.submit"
+- waitForAnimationToEnd:
+    timeout: 15000
+# Go to profile and open event media
+- tapOn:
+    id: "tab.profile"
+- waitForAnimationToEnd
+- tapOn:
+    id: "profile.card.featuredEvent"
+- waitForAnimationToEnd:
+    timeout: 8000
+# If media exists, tap the heart icon to like
+- tapOn:
+    id: "interaction.heart"
+    optional: true
+- waitForAnimationToEnd
+# Tap again to unlike
+- tapOn:
+    id: "interaction.heart"
+    optional: true
+- waitForAnimationToEnd
