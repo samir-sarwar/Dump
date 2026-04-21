@@ -22,6 +22,14 @@ A mobile app for collecting and sharing photos and videos from group events. No 
 
 Dump solves a simple problem: after any group event — a party, a trip, a wedding — photos end up scattered across dozens of phones. Dump gives every event a shared space where attendees can upload, browse, like, comment on, and save media from the events they attend.
 
+## Brief MVP Demo Video
+
+
+https://github.com/user-attachments/assets/a7480da1-2fee-4273-be1f-cab3f8893555
+
+
+
+
 **Core flow:**
 1. A user creates an event (e.g. "Jake's Birthday")
 2. They share an invite code with friends
